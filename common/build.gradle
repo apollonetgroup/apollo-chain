@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+}
+
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+// Dependency versions
+// ---------------------------------------
+
+def leveldbVersion = "1.8"
+// --------------------------------------
+
+static def isWindows() {
+    return org.gradle.internal.os.OperatingSystem.current().isWindows()
+}
+
+if (isWindows()) {
+    ext {
+        leveldbGroup = "org.ethereum"
+        leveldbName = "leveldbjni-all"
+        leveldbVersion = "1.18.3"
+    }
+} else {
+    ext {
+        leveldbGroup = "org.fusesource.leveldbjni"
+        leveldbName = "leveldbjni-all"
+        leveldbVersion = "1.8"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.69'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.10.3'
+    compile "com.cedarsoftware:java-util:1.8.0"
+    compile group: 'org.apache.httpcomponents', name: 'httpasyncclient', version: '4.1.1'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    compile group: 'com.beust', name: 'jcommander', version: '1.72'
+    compile group: 'com.typesafe', name: 'config', version: '1.3.2'
+    compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
+    compile group: 'org.rocksdb', name: 'rocksdbjni', version: '5.15.10'
+    compile project(":protocol")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+    executionData.from = '../framework/build/jacoco/jacocoTest.exec'
+    afterEvaluate {
+        classDirectories.from = classDirectories.files.collect {
+            fileTree(dir: it,)
+        }
+    }
+}
